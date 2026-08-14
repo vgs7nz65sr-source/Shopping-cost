@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#01675a">
+<meta name="description" content="Store, parse and analyse weekly shopping costs from Apple Notes.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Shopping Costs">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Shopping Cost Analyzer</title>
+<style>html,body{margin:0;background:#f7f5ef}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}</style>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+ <div class="header-inner">
+  <a class="brand" href="#dashboard" data-nav="dashboard" aria-label="Shopping Cost Analyzer home">
+   <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--color-primary)"/><path d="M9 11h14l-1.5 11.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5z" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 11V9a4 4 0 0 1 8 0v2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+   <div class="brand-text"><h1 class="brand-title">Shopping Cost Analyzer</h1><p class="brand-sub">Your weekly costs, stored & analysed</p></div>
+  </a>
+  <button class="theme-toggle" data-theme-toggle aria-label="Switch theme" title="Toggle theme"></button>
+ </div>
+</header>
+<nav class="app-nav" aria-label="App navigation">
+ <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+ <a href="#add" data-nav="add">Add week</a>
+ <a href="#history" data-nav="history">History</a>
+</nav>
+<main class="page">
+ <section id="page-add" class="app-page" hidden>
+  <section class="card input-card">
+   <div class="card-head"><div><h2 class="card-title">Add or update weeks</h2><p class="card-desc">Paste the same Apple Notes format as before. Any new week is added to your permanent history; pasting an existing week number replaces that week.</p></div><div class="input-actions"><button class="btn btn-ghost" id="btn-sample">Try sample</button><button class="btn btn-ghost" id="btn-clear">Clear</button></div></div>
+   <textarea id="notes-input" class="notes-input" spellcheck="false" placeholder="Shopping cost week 12\nFood\t120\nTrains\t117\nCoffee\t18.74\nDrinks"></textarea>
+   <div class="parse-row"><button class="btn btn-primary" id="btn-parse">Save &amp; Analyze</button><span class="parse-hint" id="parse-hint">Saved locally on this device. No account or internet connection is required after installation.</span></div>
+  </section>
+  <section class="card"><h2 class="card-title">What gets stored?</h2><p class="card-desc">Each saved week keeps its week number, categories, individual rows and totals. Your history can grow over time and can be searched and analysed without re-pasting old weeks.</p></section>
+ </section>
+ <section id="page-dashboard" class="app-page">
+  <div id="results" class="results" hidden>
+   <section class="insight-grid" aria-label="Key insights">
+    <div class="insight-card"><div class="insight-label">Total spend</div><div class="insight-value" id="insight-total">—</div><div class="insight-meta" id="insight-total-meta">&nbsp;</div></div>
+    <div class="insight-card"><div class="insight-label">Highest week</div><div class="insight-value" id="insight-highest">—</div><div class="insight-meta" id="insight-highest-meta">&nbsp;</div></div>
+    <div class="insight-card"><div class="insight-label">Avg per week</div><div class="insight-value" id="insight-avg">—</div><div class="insight-meta" id="insight-avg-meta">&nbsp;</div></div>
+    <div class="insight-card"><div class="insight-label">Biggest jump</div><div class="insight-value" id="insight-jump">—</div><div class="insight-meta" id="insight-jump-meta">&nbsp;</div></div>
+    <div class="insight-card"><div class="insight-label">Top category</div><div class="insight-value" id="insight-topcat">—</div><div class="insight-meta" id="insight-topcat-meta">&nbsp;</div></div>
+   </section>
+   <section class="card chart-card"><div class="card-head"><h2 class="card-title">Weekly spending</h2><button class="btn btn-ghost btn-sm" id="btn-csv">Export CSV</button></div><div class="chart-wrap" id="weekly-chart"></div></section>
+   <div class="two-col"><section class="card"><h2 class="card-title">Weekly breakdown</h2><div class="table-scroll"><table class="data-table" id="weekly-table"><thead><tr><th>Week</th><th class="num">Total</th><th class="num">Δ vs last</th><th class="num">Items</th></tr></thead><tbody></tbody></table></div></section><section class="card"><h2 class="card-title">Top categories (all weeks)</h2><div class="cat-bars" id="cat-bars"></div></section></div>
+   <section class="card"><h2 class="card-title">Category movers <span class="card-desc" id="movers-note">week-over-week</span></h2><div class="movers-grid" id="movers-grid"></div></section>
+   <section class="card"><div class="card-head"><h2 class="card-title">Category breakdown by week</h2><span class="card-desc" id="breakdown-note">&nbsp;</span></div><div class="table-scroll"><table class="data-table" id="breakdown-table"><thead><tr id="breakdown-head"></tr></thead><tbody id="breakdown-body"></tbody></table></div></section>
+  </div>
+  <section class="card empty-state" id="empty-state"><div class="empty-state-inner"><h2 class="empty-title">No weeks saved yet</h2><p class="empty-desc">Add your first week, then keep adding future weeks. The dashboard will analyse your whole history.</p><a class="btn btn-primary" href="#add" data-nav="add">Add your first week</a></div></section>
+ </section>
+ <section id="page-history" class="app-page" hidden>
+  <section class="card"><div class="card-head"><div><h2 class="card-title">Saved history</h2><p class="card-desc" id="history-summary">Your stored weeks.</p></div><div class="input-actions"><button class="btn btn-ghost" id="btn-history-analyze">Analyse all</button><button class="btn btn-ghost" id="btn-reset-history">Delete history</button></div></div><div class="history-tools"><input id="history-search" class="history-search" type="search" placeholder="Search week or category…"><select id="history-sort" class="history-sort"><option value="week-asc">Oldest first</option><option value="week-desc">Newest first</option><option value="total-desc">Highest spend</option><option value="total-asc">Lowest spend</option></select></div><div id="history-list" class="history-list"></div></section>
+ </section>
+</main>
+<footer class="site-footer"><p>Private by design · data stays on this device.</p></footer>
+<script src="app.js"></script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
+</body></html>
